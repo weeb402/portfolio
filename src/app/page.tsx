@@ -1,17 +1,24 @@
-import Hero from "@/components/Hero";
-import ProjectGrid from "@/components/ProjectGrid";
 import CaseStudies from "@/components/CaseStudies";
-import Scorecard from "@/components/Scorecard";
 import Footer from "@/components/Footer";
+import GunBarrelIntro from "@/components/GunBarrelIntro";
+import Header from "@/components/Header";
+import Hero from "@/components/Hero";
+import ProjectsGrid from "@/components/ProjectsGrid";
+import Scorecard from "@/components/Scorecard";
 
 export default function Home() {
   return (
-    <main>
-      <Hero />
-      <ProjectGrid />
-      <CaseStudies />
-      <Scorecard />
+    <>
+      <GunBarrelIntro />
+      <div className="crt-overlay" aria-hidden="true" />
+      <Header />
+      <main>
+        <Hero />
+        <ProjectsGrid />
+        <CaseStudies />
+        <Scorecard />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }

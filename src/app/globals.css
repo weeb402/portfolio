@@ -7,7 +7,54 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-cream-50 text-espresso-900 font-jakarta antialiased;
+    @apply bg-bond-black font-jakarta text-neutral-300 antialiased;
+  }
+  ::selection {
+    background: #c5a059;
+    color: #050505;
+  }
+}
+
+/* ---- CRT scanline + vignette overlay (purely decorative) ---- */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.025) 0px,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}
+
+/* ---- Monospace telemetry label ---- */
+@layer components {
+  .telemetry {
+    @apply font-mono text-[11px] uppercase tracking-widest2 text-bond-dim;
+  }
+
+  .gold-rule {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-bond-gold/40 to-transparent;
+  }
+
+  /* Rotated red classified stamp */
+  .classified-stamp {
+    @apply inline-block border-2 border-bond-red/70 px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-widest2 text-bond-red/90;
+    transform: rotate(-8deg);
+    box-shadow: inset 0 0 14px rgba(220, 38, 38, 0.18);
+    text-shadow: 0 0 10px rgba(220, 38, 38, 0.35);
+  }
+
+  .classified-stamp--watermark {
+    opacity: 0.16;
+    transform: rotate(-16deg);
+    box-shadow: none;
+    text-shadow: none;
   }
 }
 
@@ -15,9 +62,12 @@
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #fdfbf7;
+  background: #050505;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c5a880;
+  background: rgba(197, 160, 89, 0.4);
   border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 160, 89, 0.7);
 }

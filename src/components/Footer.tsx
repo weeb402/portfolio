@@ -1,26 +1,38 @@
+import ReplayIntroButton from "@/components/ReplayIntroButton";
+import { OPERATIVE } from "@/data/site";
+
 export default function Footer() {
   return (
-    <footer className="border-t border-espresso-900/10 py-10">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6">
-        <p className="font-cormorant text-xl font-semibold">weeb402</p>
-        <div className="flex items-center gap-6 text-sm text-espresso-700">
-          <a
-            href="https://github.com/weeb402"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-camel-dark"
-          >
-            GitHub
-          </a>
-          <a href="#projects" className="hover:text-camel-dark">
-            Work
-          </a>
-          <a href="#case-studies" className="hover:text-camel-dark">
-            ADRs
-          </a>
+    <footer className="border-t border-bond-border bg-bond-panel/40 py-10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6">
+        <div className="gold-rule" />
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <p className="font-mono text-[11px] uppercase tracking-widest2 text-neutral-300">
+            End of Dossier // MI6 Field Assets
+          </p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[11px] uppercase tracking-widest2 text-bond-dim">
+            <a
+              href={OPERATIVE.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="transition-colors hover:text-bond-gold"
+            >
+              GitHub [{OPERATIVE.github}]
+            </a>
+            <a href="#projects" className="transition-colors hover:text-bond-gold">
+              Case Files
+            </a>
+            <a href="#dossiers" className="transition-colors hover:text-bond-gold">
+              Dossiers
+            </a>
+            <ReplayIntroButton />
+          </div>
         </div>
-        <p className="text-xs text-espresso-700/70">
-          © 2026 · Built with the SAINT ESPRESSO design language
+        <p className="font-cormorant text-lg font-semibold text-bond-gold">
+          {OPERATIVE.name} [{OPERATIVE.codename}]
+        </p>
+        <p className="text-xs text-bond-dim">
+          © 2026 · 16 deployments active · 258+ verified tests · 0 critical vulnerabilities
         </p>
       </div>
     </footer>
