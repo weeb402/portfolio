@@ -1,0 +1,34 @@
+# gitleaks baseline configuration
+# Run: gitleaks detect --source . --config .gitleaks.toml
+# Docs: https://github.com/gitleaks/gitleaks
+
+[extend]
+# Extend the built-in default ruleset when gitleaks supports it; the explicit
+# allowlist below covers known portfolio test fixtures and placeholders.
+
+title = "portfolio-secret-scan-baseline"
+
+[allowlist]
+description = "Known test fixtures, placeholders, and documentation examples"
+paths = [
+  '''(^|/)(node_modules|vendor|\.git|dist|build|coverage|\.next)/''',
+  '''\.lock$''',
+  '''package-lock\.json$''',
+  '''go\.sum$''',
+  '''yarn\.lock$''',
+  '''pnpm-lock\.yaml$''',
+]
+regexes = [
+  # AWS docs example key pair
+  '''AKIAIOSFODNN7EXAMPLE''',
+  '''wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY''',
+  # Explicit placeholder conventions
+  '''(?i)your[-_]?api[-_]?key[-_]?here''',
+  '''(?i)sk-ant-your-key-here''',
+  '''(?i)(replace|insert|enter)[-_ ]?(with )?(your|the)[-_ ]?(key|token|secret|password)''',
+  '''(?i)^(test|dummy|fake|sample|example|placeholder)[-_]?(key|secret|token|password)$''',
+  # Environment variable references (not values)
+  '''\$\{[A-Z0-9_]+\}''',
+  '''process\.env\.[A-Z0-9_]+''',
+  '''os\.Getenv\("[A-Z0-9_]+"\)''',
+]
