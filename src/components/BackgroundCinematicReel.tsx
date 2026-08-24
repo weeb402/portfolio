@@ -80,7 +80,7 @@ export default function BackgroundCinematicReel() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[-10] overflow-hidden bg-bond-black"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[-10] h-[100dvh] overflow-hidden bg-bond-black"
     >
       {CLIPS.map((clip, i) => (
         <video
@@ -88,22 +88,23 @@ export default function BackgroundCinematicReel() {
           ref={(el) => {
             videoRefs.current[i] = el;
           }}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 will-change-[opacity] [filter:blur(10px)_brightness(0.22)_contrast(1.1)_saturate(0.7)] ${
+          className={`absolute inset-x-0 top-0 h-full w-full object-cover transition-opacity duration-1000 will-change-[opacity] md:[filter:blur(10px)_brightness(0.22)_contrast(1.1)_saturate(0.7)] ${
             i === current || i === previous ? "opacity-100" : "opacity-0"
           }`}
           autoPlay={i === 0 && !reducedMotion}
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
         >
           <source src={clip.local} type="video/mp4" />
           <source src={clip.remote} type="video/mp4" />
         </video>
       ))}
 
-      {/* Tactical overlays: scanline grid, vignette, contrast scrim */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+      {/* Tactical overlays: scrim (heavier on mobile where the blur is off),
+          MI6 scanline grid, vignette */}
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] md:bg-black/60" />
       <div
         className="absolute inset-0 opacity-40"
         style={{

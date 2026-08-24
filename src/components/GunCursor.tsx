@@ -27,6 +27,16 @@ export default function GunCursor() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (coarse.matches || noHover.matches || reduced.matches) return;
 
+    // Detach if the device flips to touch input mid-session (2-in-1s, tablet+mouse).
+    const inputFlip = window.matchMedia("(pointer: coarse), (hover: none)");
+    const onInputFlip = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setEnabled(false);
+        document.documentElement.classList.remove("has-custom-cursor");
+      }
+    };
+    inputFlip.addEventListener("change", onInputFlip);
+
     setEnabled(true);
     document.documentElement.classList.add("has-custom-cursor");
 
@@ -84,6 +94,7 @@ export default function GunCursor() {
     return () => {
       cancelAnimationFrame(rafRef.current);
       window.clearTimeout(flashTimerRef.current);
+      inputFlip.removeEventListener("change", onInputFlip);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mousedown", onPress);
       window.removeEventListener("mouseup", onRelease);
