@@ -3,6 +3,7 @@
 import { useState } from "react";
 import CaseStudyModal from "@/components/CaseStudyModal";
 import dossiers, { type Dossier } from "@/data/caseStudies";
+import { soundFX } from "@/utils/audioFX";
 
 export default function CaseStudies() {
   const [active, setActive] = useState<Dossier | null>(null);
@@ -25,7 +26,10 @@ export default function CaseStudies() {
             <button
               key={d.id}
               type="button"
-              onClick={() => setActive(d)}
+              onClick={() => {
+                soundFX.playSilencedShot();
+                setActive(d);
+              }}
               className="group flex w-full flex-col gap-3 bg-bond-panel p-6 text-left transition-colors hover:bg-bond-panel/60 sm:flex-row sm:items-center sm:gap-8 sm:p-8"
             >
               <span className="w-28 shrink-0 font-mono text-[11px] uppercase tracking-widest2 text-bond-red">

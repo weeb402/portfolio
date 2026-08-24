@@ -1,7 +1,25 @@
-import { GITHUB_REGISTRY, TIERS, projects, type Project, type Tier } from "@/data/projects";
+"use client";
 
-function FileCard({ p }: { p: Project }) {
+import { useEffect, useState } from "react";
+import { GITHUB_REGISTRY, TIERS, projects, type Project, type Tier } from "@/data/projects";
+import { soundFX } from "@/utils/audioFX";
+
+const GOLD_KEY = "mi6-gold-clearance";
+const GOLD_EVENT = "gold-clearance-unlocked";
+
+type Filter = "ALL" | Tier;
+
+const FILTERS: Array<{ id: Filter; label: string }> = [
+  { id: "ALL", label: "All Files" },
+  { id: TIERS.t1, label: "Tier 1 // Flagship" },
+  { id: TIERS.t2, label: "Tier 2 // System" },
+  { id: TIERS.t3, label: "Tier 3 // Web" },
+];
+
+function FileCard({ p, gold }: { p: Project; gold: boolean }) {
   const repoUrl = p.repo ? `https://github.com/weeb402/${p.repo}` : GITHUB_REGISTRY;
+  const fireShot = () => soundFX.playSilencedShot();
+
   return (
     <article className="group relative flex flex-col border border-bond-border bg-bond-panel p-6 transition-all duration-300 hover:-translate-y-1 hover:border-bond-gold/60 hover:shadow-[0_18px_40px_-20px_rgba(197,160,89,0.25)]">
       {/* corner brackets */}
@@ -12,9 +30,16 @@ function FileCard({ p }: { p: Project }) {
         <span className="font-mono text-[10px] uppercase tracking-widest2 text-bond-dim">
           {p.fileNo}
         </span>
-        <span className="border border-bond-gold/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest2 text-bond-gold">
-          {p.tier}
-        </span>
+        <div className="flex items-center gap-2">
+          {gold && p.tier === TIERS.t1 && (
+            <span className="border border-bond-gold-bright/70 bg-bond-gold/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest2 text-bond-gold-bright shadow-[0_0_10px_rgba(212,175,55,0.25)]">
+              ★ Gold Clearance
+            </span>
+          )}
+          <span className="border border-bond-gold/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest2 text-bond-gold">
+            {p.tier}
+          </span>
+        </div>
       </div>
 
       <h3 className="mt-4 font-cormorant text-3xl font-semibold text-neutral-100 transition-colors group-hover:text-bond-gold">
@@ -52,6 +77,7 @@ function FileCard({ p }: { p: Project }) {
             href={p.live}
             target="_blank"
             rel="noreferrer"
+            onClick={fireShot}
             className="bg-bond-gold px-3 py-1.5 text-bond-black transition-colors hover:bg-bond-gold-bright"
           >
             Live URL ↗
@@ -62,6 +88,7 @@ function FileCard({ p }: { p: Project }) {
             href={p.liveSecondary.url}
             target="_blank"
             rel="noreferrer"
+            onClick={fireShot}
             className="text-bond-gold underline-offset-4 hover:underline"
           >
             {p.liveSecondary.label}
@@ -71,6 +98,7 @@ function FileCard({ p }: { p: Project }) {
           href={repoUrl}
           target="_blank"
           rel="noreferrer"
+          onClick={fireShot}
           className={`transition-colors ${
             p.live
               ? "text-bond-dim hover:text-bond-gold"
@@ -97,7 +125,32 @@ function FileCard({ p }: { p: Project }) {
 }
 
 export default function ProjectsGrid() {
+  const [filter, setFilter] = useState<Filter>("ALL");
+  const [recoilKey, setRecoilKey] = useState(0);
+  const [gold, setGold] = useState(false);
+
+  useEffect(() => {
+    try {
+      setGold(window.localStorage.getItem(GOLD_KEY) === "1");
+    } catch {
+      /* storage unavailable */
+    }
+    const onUnlock = () => setGold(true);
+    window.addEventListener(GOLD_EVENT, onUnlock);
+    return () => window.removeEventListener(GOLD_EVENT, onUnlock);
+  }, []);
+
+  const selectFilter = (next: Filter) => {
+    if (next === filter) return;
+    soundFX.playSlideRack();
+    setRecoilKey((k) => k + 1);
+    setFilter(next);
+  };
+
   const tiers: Tier[] = [TIERS.t1, TIERS.t2, TIERS.t3];
+  const visibleTiers = filter === "ALL" ? tiers : [filter];
+  const visibleCount = projects.filter((p) => filter === "ALL" || p.tier === filter).length;
+
   return (
     <section id="projects" className="mx-auto max-w-6xl px-6 py-24">
       <p className="telemetry">Section 02 // Live Operation Registry // Eyes Only</p>
@@ -105,36 +158,61 @@ export default function ProjectsGrid() {
         Classified project files
       </h2>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-bond-dim">
-        Sixteen operations under management. Every live URL below was returning{" "}
+        Twelve active operations under management. Every live URL below was returning{" "}
         <span className="font-mono text-bond-gold">HTTP 200 OK</span> at time of audit.
       </p>
 
-      {tiers.map((tier) => {
-        const files = projects.filter((p) => p.tier === tier);
-        if (!files.length) return null;
-        return (
-          <div key={tier} className="mt-14">
-            <div className="mb-6 flex items-center gap-4">
-              <h3 className="whitespace-nowrap font-mono text-xs uppercase tracking-widest2 text-bond-gold">
-                {tier === TIERS.t1
-                  ? `${tier} — Flagship Systems`
-                  : tier === TIERS.t2
-                    ? `${tier} — Operational Systems`
-                    : `${tier} — Production Sites`}
-              </h3>
-              <div className="gold-rule" />
-              <span className="whitespace-nowrap font-mono text-[10px] tracking-widest2 text-bond-dim">
-                {files.length} FILES
-              </span>
+      {/* Filter rail — Walther slide-rack on switch */}
+      <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Project clearance tier filters">
+        {FILTERS.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            role="tab"
+            aria-selected={filter === f.id}
+            onClick={() => selectFilter(f.id)}
+            className={`border px-4 py-2 font-mono text-[10px] uppercase tracking-widest2 transition-colors ${
+              filter === f.id
+                ? "border-bond-gold bg-bond-gold/15 text-bond-gold-bright"
+                : "border-bond-border text-bond-dim hover:border-bond-gold/50 hover:text-neutral-300"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+        <span className="ml-auto self-center font-mono text-[10px] tracking-widest2 text-bond-dim">
+          {visibleCount} FILES EXPOSED
+        </span>
+      </div>
+
+      <div key={recoilKey} className={recoilKey > 0 ? "animate-spring-recoil" : ""}>
+        {visibleTiers.map((tier) => {
+          const files = projects.filter((p) => p.tier === tier);
+          if (!files.length) return null;
+          return (
+            <div key={tier} className="mt-14">
+              <div className="mb-6 flex items-center gap-4">
+                <h3 className="whitespace-nowrap font-mono text-xs uppercase tracking-widest2 text-bond-gold">
+                  {tier === TIERS.t1
+                    ? `${tier} — Flagship Systems`
+                    : tier === TIERS.t2
+                      ? `${tier} — Operational Systems`
+                      : `${tier} — Production Sites`}
+                </h3>
+                <div className="gold-rule" />
+                <span className="whitespace-nowrap font-mono text-[10px] tracking-widest2 text-bond-dim">
+                  {files.length} FILES
+                </span>
+              </div>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {files.map((p) => (
+                  <FileCard key={p.fileNo} p={p} gold={gold} />
+                ))}
+              </div>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {files.map((p) => (
-                <FileCard key={p.fileNo} p={p} />
-              ))}
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </section>
   );
 }

@@ -1,17 +1,18 @@
 import CaseStudies from "@/components/CaseStudies";
 import Footer from "@/components/Footer";
+import GoldenGunEasterEgg from "@/components/GoldenGunEasterEgg";
 import GunBarrelIntro from "@/components/GunBarrelIntro";
-import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ProjectsGrid from "@/components/ProjectsGrid";
 import Scorecard from "@/components/Scorecard";
+import TelemetryHeader from "@/components/TelemetryHeader";
 
 export default function Home() {
   return (
     <>
       <GunBarrelIntro />
       <div className="crt-overlay" aria-hidden="true" />
-      <Header />
+      <TelemetryHeader />
       <main>
         <Hero />
         <ProjectsGrid />
@@ -19,6 +20,7 @@ export default function Home() {
         <Scorecard />
       </main>
       <Footer />
+      <GoldenGunEasterEgg />
     </>
   );
 }
