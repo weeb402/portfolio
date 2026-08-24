@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import BackgroundCinematicReel from "@/components/BackgroundCinematicReel";
 import GunCursor from "@/components/GunCursor";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${jakarta.variable} ${cormorant.variable} ${plexMono.variable}`}>
+        <BackgroundCinematicReel />
         {children}
         <GunCursor />
       </body>
