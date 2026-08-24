@@ -130,17 +130,6 @@ export const projects: Project[] = [
   },
   {
     fileNo: "FILE 009",
-    codename: "Review Assistant",
-    designation: "Multi-Tenant Review Engine",
-    tier: TIERS.t2,
-    summary:
-      "Review collection infrastructure for local businesses: multi-tenant routing generates dynamic, branded review funnels per storefront from a single deployment.",
-    specs: ["Multi-tenant dynamic reviews", "Serverless Prisma stack", "Zero-downtime deploys"],
-    stack: ["Next.js", "Prisma", "PostgreSQL"],
-    live: "https://review-assistant-one.vercel.app",
-  },
-  {
-    fileNo: "FILE 010",
     codename: "LIFAFA",
     designation: "Luxury Atelier Storefront",
     tier: TIERS.t2,
@@ -151,18 +140,7 @@ export const projects: Project[] = [
     live: "https://lifafa-qgxg.vercel.app",
   },
   {
-    fileNo: "FILE 011",
-    codename: "Ora Club",
-    designation: "Membership Intake Platform",
-    tier: TIERS.t2,
-    summary:
-      "Membership intake for Ora Club Malviya Nagar: validated forms (react-hook-form + zod) writing straight into PostgreSQL through Prisma.",
-    specs: ["zod-validated intake", "Prisma + PostgreSQL", "Production traffic live"],
-    stack: ["Next.js", "Prisma", "PostgreSQL"],
-    live: "https://ora-malviya-nagar.vercel.app",
-  },
-  {
-    fileNo: "FILE 012",
+    fileNo: "FILE 010",
     codename: "Crafticia Store",
     designation: "Craft Commerce Front",
     tier: TIERS.t2,
@@ -173,18 +151,7 @@ export const projects: Project[] = [
     live: "https://nishu-chacha.vercel.app",
   },
   {
-    fileNo: "FILE 013",
-    codename: "Saint Espresso",
-    designation: "Design-Language Flagship",
-    tier: TIERS.t3,
-    summary:
-      "Minimalist high-craft coffee showcase that defines this portfolio's original design language — Lenis smooth scroll over a GSAP motion system.",
-    specs: ["Lenis + GSAP motion", "Design-language source", "100 Lighthouse craft"],
-    stack: ["Next.js", "Lenis", "GSAP"],
-    live: "https://saint-espresso.vercel.app",
-  },
-  {
-    fileNo: "FILE 014",
+    fileNo: "FILE 011",
     codename: "Aurora Cafe",
     designation: "Static Showcase Build",
     tier: TIERS.t3,
@@ -195,18 +162,7 @@ export const projects: Project[] = [
     live: "https://aurora-cafe-xi.vercel.app",
   },
   {
-    fileNo: "FILE 015",
-    codename: "Luxehamper",
-    designation: "Premium Gifting Storefront",
-    tier: TIERS.t3,
-    summary:
-      "Premium gifting storefront on a deliberately lean Next.js build — fast first paint, zero client-side bloat.",
-    specs: ["Lean bundle budget", "Commerce-ready layout", "Vercel edge network"],
-    stack: ["Next.js", "Tailwind", "E-commerce"],
-    live: "https://luxehumaper.vercel.app",
-  },
-  {
-    fileNo: "FILE 016",
+    fileNo: "FILE 012",
     codename: "Clinic Webpage",
     designation: "Medical Static Layout",
     tier: TIERS.t3,

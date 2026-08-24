@@ -3,7 +3,7 @@ export const OPERATIVE = {
   codename: "007-DEV",
   github: "weeb402",
   githubUrl: "https://github.com/weeb402",
-  email: "116502838+weeb402@users.noreply.github.com",
+  email: "vaibhavgoyal302001@gmail.com",
   resume: "/portfolio-audit.pdf",
   title: "Full-Stack Systems Architect & Distributed Systems Engineer",
   deployments: 16,
