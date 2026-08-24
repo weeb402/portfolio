@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from "react";
 type Clip = {
   /** Drop-in slot served from /public/videos. */
   local: string;
-  /** Royalty-free CDN stream used when the local file is absent. */
-  remote: string;
+  /** High-uptime public H.264 streams used when the local file is absent. */
+  fallbacks: string[];
 };
 
 const CLIP_DURATION_MS = 5000;
@@ -15,29 +15,38 @@ const CROSSFADE_MS = 1000;
 const CLIPS: Clip[] = [
   {
     local: "/videos/clip-1.mp4",
-    remote:
+    fallbacks: [
       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    ],
   },
   {
     local: "/videos/clip-2.mp4",
-    remote:
+    fallbacks: [
       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+    ],
   },
   {
     local: "/videos/clip-3.mp4",
-    remote:
+    fallbacks: [
       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
+    ],
   },
   {
     local: "/videos/clip-4.mp4",
-    remote: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+    fallbacks: [
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    ],
   },
 ];
 
 /**
  * Four-clip atmosphere reel cycling every five seconds behind all content.
  * Two logical layers cross-fade over one second so cuts never flicker;
- * every source has a royalty-free CDN fallback when the local file is missing.
+ * each slot chains a local file into two CDN mirrors for zero-config uptime.
  */
 export default function BackgroundCinematicReel() {
   const [current, setCurrent] = useState(0);
@@ -48,6 +57,16 @@ export default function BackgroundCinematicReel() {
 
   useEffect(() => {
     setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
+
+  // Programmatic kick bypasses autoplay heuristics that ignore the attribute
+  // on first paint (Safari low-power mode, embedded webviews).
+  useEffect(() => {
+    videoRefs.current.forEach((video, i) => {
+      if (!video || i !== idxRef.current) return;
+      const kick = video.play();
+      if (kick !== undefined) kick.catch(() => undefined);
+    });
   }, []);
 
   useEffect(() => {
@@ -62,12 +81,13 @@ export default function BackgroundCinematicReel() {
   }, [reducedMotion]);
 
   // Start the incoming clip, keep the outgoing one alive through the fade,
-  // park everything else. .play() rejections (low-power mode) are swallowed.
+  // park everything else.
   useEffect(() => {
     videoRefs.current.forEach((video, i) => {
       if (!video) return;
       if (i === current) {
-        video.play().catch(() => undefined);
+        const req = video.play();
+        if (req !== undefined) req.catch(() => undefined);
       } else if (i !== previous) {
         video.pause();
       }
@@ -80,7 +100,7 @@ export default function BackgroundCinematicReel() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-x-0 top-0 z-[-10] h-[100dvh] overflow-hidden bg-bond-black"
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-bond-black"
     >
       {CLIPS.map((clip, i) => (
         <video
@@ -88,29 +108,30 @@ export default function BackgroundCinematicReel() {
           ref={(el) => {
             videoRefs.current[i] = el;
           }}
-          className={`absolute inset-x-0 top-0 h-full w-full object-cover transition-opacity duration-1000 will-change-[opacity] md:[filter:blur(10px)_brightness(0.22)_contrast(1.1)_saturate(0.7)] ${
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 will-change-[opacity] md:[filter:blur(10px)_brightness(0.28)_contrast(1.1)_saturate(0.7)] ${
             i === current || i === previous ? "opacity-100" : "opacity-0"
           }`}
-          autoPlay={i === 0 && !reducedMotion}
-          muted
-          loop
-          playsInline
-          preload="metadata"
+          autoPlay={true}
+          muted={true}
+          loop={true}
+          playsInline={true}
+          preload="auto"
         >
           <source src={clip.local} type="video/mp4" />
-          <source src={clip.remote} type="video/mp4" />
+          {clip.fallbacks.map((url) => (
+            <source key={url} src={url} type="video/mp4" />
+          ))}
         </video>
       ))}
 
-      {/* Tactical overlays: scrim (heavier on mobile where the blur is off),
-          MI6 scanline grid, vignette */}
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] md:bg-black/60" />
+      {/* Tactical overlays: readability scrim, MI6 scanline grid, vignette */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-[4px]" />
       <div
         className="absolute inset-0 opacity-40"
         style={{
           backgroundImage:
-            "linear-gradient(to right, rgba(197,160,89,0.05) 1px, transparent 1px)," +
-            "linear-gradient(to bottom, rgba(197,160,89,0.05) 1px, transparent 1px)",
+            "linear-gradient(to right, rgba(212,175,55,0.05) 1px, transparent 1px)," +
+            "linear-gradient(to bottom, rgba(212,175,55,0.05) 1px, transparent 1px)",
           backgroundSize: "96px 96px",
         }}
       />
@@ -118,7 +139,7 @@ export default function BackgroundCinematicReel() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 30%, rgba(5,5,5,0.75) 78%, rgba(5,5,5,0.95) 100%)",
+            "radial-gradient(ellipse at center, transparent 30%, rgba(8,9,10,0.75) 78%, rgba(8,9,10,0.95) 100%)",
         }}
       />
     </div>

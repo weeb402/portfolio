@@ -7,7 +7,8 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-bond-black font-jakarta text-neutral-300 antialiased;
+    /* Transparent: the fixed cinematic reel (z-0) owns the page backdrop. */
+    @apply font-jakarta text-neutral-300 antialiased;
   }
   ::selection {
     background: #c5a059;

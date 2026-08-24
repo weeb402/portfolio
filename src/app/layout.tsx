@@ -34,7 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${jakarta.variable} ${cormorant.variable} ${plexMono.variable}`}>
         <BackgroundCinematicReel />
-        {children}
+        <div className="relative z-10">{children}</div>
         <GunCursor />
       </body>
     </html>
