@@ -3,6 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { primeAudioUnlock, soundFX } from "@/utils/audioFX";
 
+// Failsafe: never leave the OS pointer hidden when the overlay dies mid-session.
+function restoreSystemCursor() {
+  document.documentElement.classList.remove("has-custom-cursor");
+  document.documentElement.style.cursor = "auto";
+  document.body.style.cursor = "auto";
+}
+
 /**
  * Walther PPK replacement cursor for precision pointers only.
  * The muzzle sits exactly on the hotspot (0,0); a laser guide extends
@@ -32,84 +39,103 @@ export default function GunCursor() {
     const onInputFlip = (e: MediaQueryListEvent) => {
       if (e.matches) {
         setEnabled(false);
-        document.documentElement.classList.remove("has-custom-cursor");
+        restoreSystemCursor();
       }
     };
     inputFlip.addEventListener("change", onInputFlip);
 
-    setEnabled(true);
-    document.documentElement.classList.add("has-custom-cursor");
+    try {
+      setEnabled(true);
+      document.documentElement.classList.add("has-custom-cursor");
 
-    let queued = false;
-    let shown = false;
-    const onMove = (e: MouseEvent) => {
-      if (queued) return;
-      queued = true;
-      rafRef.current = requestAnimationFrame(() => {
-        const el = trackerRef.current;
-        if (el) {
-          el.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-          if (!shown) {
-            shown = true;
-            el.style.opacity = "1";
-          }
-        }
+      // Single rAF paint shared by pointer + scroll; coords are viewport-space
+      // clientX/clientY so a fixed overlay never drifts under the OS pointer.
+      let queued = false;
+      let shown = false;
+      let lastX = 0;
+      let lastY = 0;
+      const paint = () => {
         queued = false;
-      });
-    };
+        const el = trackerRef.current;
+        if (!el) return;
+        el.style.transform = `translate3d(${lastX}px, ${lastY}px, 0)`;
+        if (!shown) {
+          shown = true;
+          el.style.opacity = "1";
+        }
+      };
+      const onMove = (e: MouseEvent) => {
+        lastX = e.clientX;
+        lastY = e.clientY;
+        if (queued) return;
+        queued = true;
+        rafRef.current = requestAnimationFrame(paint);
+      };
+      // Repaint after programmatic scrolls / pinch-zoom reflows that fire
+      // without a trailing mousemove, keeping the compositor frame current.
+      const onScroll = () => {
+        if (queued) return;
+        queued = true;
+        rafRef.current = requestAnimationFrame(paint);
+      };
 
-    const onPress = (e: MouseEvent) => {
-      if (e.button !== 0) return;
-      soundFX.playSilencedShot();
-      const gun = recoilRef.current;
-      if (gun) {
-        gun.classList.remove("animate-cursor-recoil");
-        // Force a reflow so the keyframe restarts on rapid fire.
-        void gun.offsetWidth;
-        gun.classList.add("animate-cursor-recoil");
-      }
-      const flash = flashRef.current;
-      if (flash) {
-        window.clearTimeout(flashTimerRef.current);
-        flash.classList.remove("animate-muzzle-spark");
-        void flash.offsetWidth;
-        flash.classList.add("animate-muzzle-spark");
-        flashTimerRef.current = window.setTimeout(() => {
+      const onPress = (e: MouseEvent) => {
+        if (e.button !== 0) return;
+        soundFX.playSilencedShot();
+
+        const gun = recoilRef.current;
+        if (gun) {
+          gun.classList.remove("animate-cursor-recoil");
+          // Force a reflow so the keyframe restarts on rapid fire.
+          void gun.offsetWidth;
+          gun.classList.add("animate-cursor-recoil");
+        }
+        const flash = flashRef.current;
+        if (flash) {
+          window.clearTimeout(flashTimerRef.current);
           flash.classList.remove("animate-muzzle-spark");
-        }, 90);
-      }
-    };
+          void flash.offsetWidth;
+          flash.classList.add("animate-muzzle-spark");
+          flashTimerRef.current = window.setTimeout(() => {
+            flash.classList.remove("animate-muzzle-spark");
+          }, 90);
+        }
+      };
 
-    const onRelease = () => {
-      recoilRef.current?.classList.remove("animate-cursor-recoil");
-    };
+      const onRelease = () => {
+        recoilRef.current?.classList.remove("animate-cursor-recoil");
+      };
 
-    const onDocLeave = () => trackerRef.current?.style.setProperty("opacity", "0");
+      const onDocLeave = () => trackerRef.current?.style.setProperty("opacity", "0");
 
-    window.addEventListener("mousemove", onMove, { passive: true });
-    window.addEventListener("mousedown", onPress);
-    window.addEventListener("mouseup", onRelease);
-    document.documentElement.addEventListener("mouseleave", onDocLeave);
+      window.addEventListener("mousemove", onMove, { passive: true });
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("mousedown", onPress);
+      window.addEventListener("mouseup", onRelease);
+      document.documentElement.addEventListener("mouseleave", onDocLeave);
 
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      window.clearTimeout(flashTimerRef.current);
-      inputFlip.removeEventListener("change", onInputFlip);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mousedown", onPress);
-      window.removeEventListener("mouseup", onRelease);
-      document.documentElement.removeEventListener("mouseleave", onDocLeave);
-      document.documentElement.classList.remove("has-custom-cursor");
-    };
+      return () => {
+        cancelAnimationFrame(rafRef.current);
+        window.clearTimeout(flashTimerRef.current);
+        inputFlip.removeEventListener("change", onInputFlip);
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("mousedown", onPress);
+        window.removeEventListener("mouseup", onRelease);
+        document.documentElement.removeEventListener("mouseleave", onDocLeave);
+        restoreSystemCursor();
+      };
+    } catch {
+      restoreSystemCursor();
+    }
   }, []);
-
   if (!enabled) return null;
 
   return (
     <div
       ref={trackerRef}
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-[300] opacity-0 will-change-transform"
+      className="pointer-events-none fixed left-0 top-0 z-[99999] opacity-0 will-change-transform"
     >
       {/* Rotated frame: gun axis runs NW, muzzle pinned to the hotspot. */}
       <div className="absolute left-0 top-0 h-0 w-0" style={{ transform: "rotate(45deg)", transformOrigin: "0 0" }}>
