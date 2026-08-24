@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import GunCursor from "@/components/GunCursor";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${jakarta.variable} ${cormorant.variable} ${plexMono.variable}`}>
         {children}
+        <GunCursor />
       </body>
     </html>
   );

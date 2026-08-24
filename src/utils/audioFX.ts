@@ -104,6 +104,15 @@ class ProceduralSoundFX {
   }
 
   /**
+   * Create/resume the shared context synchronously inside a user gesture.
+   * Browsers block audio until the first interaction — call from a
+   * pointer/key/touch handler to arm the engine.
+   */
+  public unlock(): void {
+    this.ensureContext();
+  }
+
+  /**
    * Suppressed gunshot: white-noise burst through a fast-closing low-pass,
    * a ~28 Hz recoil oscillation wobbling the body, and a low sub thump.
    */
@@ -269,5 +278,28 @@ class ProceduralSoundFX {
 
 /** Shared singleton — mutate `soundFX.isMuted` to arm/silence all effects. */
 export const soundFX = new ProceduralSoundFX();
+
+let unlockBound = false;
+
+/**
+ * Bind one-time global gesture listeners (pointer, touch, key) that unlock
+ * the AudioContext on the very first interaction — required on iOS Safari
+ * and Android Chrome before any synthesized sound will play.
+ */
+export function primeAudioUnlock(): void {
+  if (typeof window === "undefined" || unlockBound) return;
+  unlockBound = true;
+
+  const events: Array<keyof WindowEventMap> = ["pointerdown", "touchstart", "touchend", "keydown"];
+  const onGesture = () => {
+    soundFX.unlock();
+    for (const ev of events) {
+      window.removeEventListener(ev, onGesture);
+    }
+  };
+  for (const ev of events) {
+    window.addEventListener(ev, onGesture, { passive: true });
+  }
+}
 
 export type { ProceduralSoundFX as SoundFX };

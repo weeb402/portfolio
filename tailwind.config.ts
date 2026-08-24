@@ -76,6 +76,15 @@ const config: Config = {
           "93%": { transform: "translateX(2.5px) rotate(1.2deg)" },
           "97%": { transform: "translateX(-1px) rotate(-0.4deg)" },
         },
+        "cursor-recoil": {
+          "0%": { transform: "rotate(0deg) translate(0, 0)" },
+          "30%": { transform: "rotate(-14deg) translate(-4px, -2px)" },
+          "100%": { transform: "rotate(0deg) translate(0, 0)" },
+        },
+        "muzzle-spark": {
+          "0%": { opacity: "1", transform: "scale(0.55)" },
+          "100%": { opacity: "0", transform: "scale(1.7)" },
+        },
         "flash-burst": {
           "0%": { opacity: "0", transform: "scale(0.2)" },
           "18%": { opacity: "1" },
@@ -96,6 +105,8 @@ const config: Config = {
         "grip-scan": "grip-scan 1.15s ease-in-out infinite",
         "spring-recoil": "spring-recoil 0.38s cubic-bezier(0.34, 1.56, 0.64, 1)",
         "jam-shake": "jam-shake 2.6s ease-in-out infinite",
+        "cursor-recoil": "cursor-recoil 0.12s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "muzzle-spark": "muzzle-spark 80ms ease-out forwards",
       },
     },
   },

@@ -58,6 +58,14 @@
   }
 }
 
+/* ---- Custom weapon cursor: suppress the OS pointer on precision devices ---- */
+@media (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }
