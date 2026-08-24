@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Card3D from "@/components/Card3D";
+import Reveal from "@/components/Reveal";
+import ScrambleText from "@/components/ScrambleText";
 import { GITHUB_REGISTRY, TIERS, projects, type Project, type Tier } from "@/data/projects";
 import { soundFX } from "@/utils/audioFX";
 
@@ -21,7 +24,8 @@ function FileCard({ p, gold }: { p: Project; gold: boolean }) {
   const fireShot = () => soundFX.playSilencedShot();
 
   return (
-    <article className="group relative flex flex-col border border-bond-border bg-bond-panel p-6 transition-all duration-300 hover:-translate-y-1 hover:border-bond-gold/60 hover:shadow-[0_18px_40px_-20px_rgba(197,160,89,0.25)]">
+    <Card3D className="h-full" maxTilt={5}>
+      <article className="group relative flex h-full flex-col border border-bond-border bg-bond-panel p-6 transition-all duration-300 hover:border-bond-gold/60 hover:shadow-[0_18px_40px_-20px_rgba(197,160,89,0.25)]">
       {/* corner brackets */}
       <span aria-hidden="true" className="absolute left-0 top-0 h-3 w-3 border-l border-t border-bond-gold opacity-0 transition-opacity group-hover:opacity-100" />
       <span aria-hidden="true" className="absolute bottom-0 right-0 h-3 w-3 border-b border-r border-bond-gold opacity-0 transition-opacity group-hover:opacity-100" />
@@ -120,7 +124,8 @@ function FileCard({ p, gold }: { p: Project; gold: boolean }) {
           Classified
         </span>
       )}
-    </article>
+      </article>
+    </Card3D>
   );
 }
 
@@ -155,7 +160,7 @@ export default function ProjectsGrid() {
     <section id="projects" className="mx-auto max-w-6xl px-6 py-24">
       <p className="telemetry">Section 02 // Live Operation Registry // Eyes Only</p>
       <h2 className="mt-3 font-cormorant text-4xl font-semibold text-neutral-100 sm:text-5xl">
-        Classified project files
+        <ScrambleText text="Classified project files" />
       </h2>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-bond-dim">
         Twelve active operations under management. Every live URL below was returning{" "}
@@ -191,22 +196,30 @@ export default function ProjectsGrid() {
           if (!files.length) return null;
           return (
             <div key={tier} className="mt-14">
-              <div className="mb-6 flex items-center gap-4">
-                <h3 className="whitespace-nowrap font-mono text-xs uppercase tracking-widest2 text-bond-gold">
-                  {tier === TIERS.t1
-                    ? `${tier} — Flagship Systems`
-                    : tier === TIERS.t2
-                      ? `${tier} — Operational Systems`
-                      : `${tier} — Production Sites`}
-                </h3>
-                <div className="gold-rule" />
-                <span className="whitespace-nowrap font-mono text-[10px] tracking-widest2 text-bond-dim">
-                  {files.length} FILES
-                </span>
-              </div>
+              <Reveal>
+                <div className="mb-6 flex items-center gap-4">
+                  <h3 className="whitespace-nowrap font-mono text-xs uppercase tracking-widest2 text-bond-gold">
+                    <ScrambleText
+                      text={
+                        tier === TIERS.t1
+                          ? `${tier} — Flagship Systems`
+                          : tier === TIERS.t2
+                            ? `${tier} — Operational Systems`
+                            : `${tier} — Production Sites`
+                      }
+                    />
+                  </h3>
+                  <div className="gold-rule" />
+                  <span className="whitespace-nowrap font-mono text-[10px] tracking-widest2 text-bond-dim">
+                    {files.length} FILES
+                  </span>
+                </div>
+              </Reveal>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {files.map((p) => (
-                  <FileCard key={p.fileNo} p={p} gold={gold} />
+                {files.map((p, i) => (
+                  <Reveal key={p.fileNo} delay={(i % 3) * 90}>
+                    <FileCard p={p} gold={gold} />
+                  </Reveal>
                 ))}
               </div>
             </div>

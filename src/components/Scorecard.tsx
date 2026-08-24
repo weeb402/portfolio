@@ -1,3 +1,6 @@
+import Reveal from "@/components/Reveal";
+import ScrambleText from "@/components/ScrambleText";
+
 const tiers = [
   {
     tier: "Tier 1 — Flagships",
@@ -37,46 +40,52 @@ const hardening = [
 export default function Scorecard() {
   return (
     <section id="scorecard" className="mx-auto max-w-6xl px-6 py-24">
-      <p className="telemetry">Section 04 // Field Audit Scorecard // Audited Aug 2026</p>
+      <p className="telemetry">
+        <ScrambleText text="Section 04 // Field Audit Scorecard // Audited Aug 2026" />
+      </p>
       <h2 className="mt-3 font-cormorant text-4xl font-semibold text-neutral-100 sm:text-5xl">
-        Verified, not claimed
+        <ScrambleText text="Verified, not claimed" />
       </h2>
 
       <div className="mt-12 grid gap-6 lg:grid-cols-3">
-        {tiers.map((t) => (
-          <div key={t.tier} className="border border-bond-border bg-bond-panel p-7">
-            <h3 className="font-mono text-xs uppercase tracking-widest2 text-bond-gold">{t.tier}</h3>
-            <ul className="mt-5 space-y-4">
-              {t.items.map(([name, note]) => (
-                <li key={name}>
-                  <p className="text-sm font-semibold text-neutral-100">{name}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-bond-dim">{note}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {tiers.map((t, i) => (
+          <Reveal key={t.tier} delay={i * 100}>
+            <div className="h-full border border-bond-border bg-bond-panel p-7">
+              <h3 className="font-mono text-xs uppercase tracking-widest2 text-bond-gold">{t.tier}</h3>
+              <ul className="mt-5 space-y-4">
+                {t.items.map(([name, note]) => (
+                  <li key={name}>
+                    <p className="text-sm font-semibold text-neutral-100">{name}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-bond-dim">{note}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
         ))}
       </div>
 
-      <div className="relative mt-6 border border-bond-red/30 bg-bond-panel p-7">
-        <span
-          aria-hidden="true"
-          className="classified-stamp pointer-events-none absolute -top-3 right-8 select-none bg-bond-black"
-        >
-          Eyes Only
-        </span>
-        <h3 className="font-mono text-xs uppercase tracking-widest2 text-bond-gold">
-          Fleet-wide hardening protocol
-        </h3>
-        <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
-          {hardening.map((h) => (
-            <li key={h} className="flex items-start gap-2.5 text-sm text-neutral-300">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-bond-gold" />
-              {h}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Reveal delay={140}>
+        <div className="relative mt-6 border border-bond-red/30 bg-bond-panel p-7">
+          <span
+            aria-hidden="true"
+            className="classified-stamp pointer-events-none absolute -top-3 right-8 select-none bg-bond-black"
+          >
+            Eyes Only
+          </span>
+          <h3 className="font-mono text-xs uppercase tracking-widest2 text-bond-gold">
+            Fleet-wide hardening protocol
+          </h3>
+          <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
+            {hardening.map((h) => (
+              <li key={h} className="flex items-start gap-2.5 text-sm text-neutral-300">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-bond-gold" />
+                {h}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Reveal>
     </section>
   );
 }

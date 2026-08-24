@@ -24,6 +24,9 @@ const config: Config = {
       letterSpacing: {
         widest2: "0.22em",
       },
+      transitionTimingFunction: {
+        spring: "cubic-bezier(0.22, 1.2, 0.36, 1)",
+      },
       keyframes: {
         "barrel-spin": {
           from: { transform: "rotate(0deg)" },
